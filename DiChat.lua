@@ -1,6 +1,6 @@
 script_name("{ff7e14}DiChat")
 script_author("{ff7e14}solodi")
-script_version("1.9.1")
+script_version("1.9.2")
 
 local encoding = require 'encoding'
 
@@ -149,7 +149,7 @@ local skip = [[
 [Подсказка] {ffffff}Вы можете отключить данную функцию в {ff6666}/settings - Настройки персонажа{ffffff}.
 ]]
 
---погода
+-- погода
 function se.onSetWeather(id)
 	actual.weather = id
 	if cfg.weather.lock then
@@ -195,10 +195,10 @@ function main()
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
     end
 
-	--команды смены погоды
+	-- команды смены погоды
 	sampRegisterChatCommand("st", setWorldTime)
 	sampRegisterChatCommand("sw", setWorldWeather)
-	--регистры управления временем и погодой сервером ВКЛ/ВЫКЛ
+	-- регистры управления временем и погодой сервером ВКЛ/ВЫКЛ
 	sampRegisterChatCommand("bt", toggleFreezeTime)
 	sampRegisterChatCommand("bw", toggleFreezeWeather)
 	
@@ -364,6 +364,11 @@ function se.onServerMessage(color, text)
             {pattern = "%[VIP]Объявление: (.+)%. (.+_.+)%[.+] Тел%. (.+)", prefix = "{FCAA4D}VIP AD: {ffeadb}", suffix = "{ff9a76} T: "}
         }
 
+		-- скип объявлений ломбарда
+		if string.find(text, "Ломбард") or string.find(text, "ломбард") then
+    		return false
+		end
+
         for _, p in ipairs(patterns) do
             local ad, sender, tel = string.match(text, p.pattern)
             if ad and sender then
@@ -374,7 +379,12 @@ function se.onServerMessage(color, text)
         end
     end
 
-	--поздравление с апом уровня в фаме
+	-- скип рекламы ломбарда в VIP-чате
+	if string.find(text, "%[VIP ADV%]") and (string.find(text, "Ломбард") or string.find(text, "ломбард")) then
+		return false
+	end
+
+	-- поздравление с апом уровня в фаме
 	if text:find("{FF8400}%[Новости Семьи]{FFFFFF} Член семьи: .+_.+%[.+] достиг .+ уровня%. В семью начислен опыт%.") then
 		lua_thread.create(function()
 		  wait(1000)
@@ -383,7 +393,7 @@ function se.onServerMessage(color, text)
 		return text
    end
 
-   --приветствие в семье
+   -- приветствие в семье
 	if text:find("%[Семья %(Новости%)] .+_.+%[.+]:{B9C1B8} пригласил в семью нового члена: .+_.+%[.+]!") then
         lua_thread.create(function()
 			wait(1000)
