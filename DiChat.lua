@@ -1,6 +1,6 @@
 script_name("{ff7e14}DiChat")
 script_author("{ff7e14}solodi")
-script_version("1.9.2")
+script_version("1.9.3")
 
 local encoding = require 'encoding'
 
@@ -288,11 +288,14 @@ function se.onShowDialog(id, style, title, button1, button2, text)
         [26013] = 0, -- фамавто
         [26611] = 0, -- рядом стоящие буквой R
         [25194] = 1, -- фамавто без хуйни
-        [7551] = 1,  -- переодеться без хуйни
-        [581] = 1,   -- переодеться без хуйни
+        [7551] = 1,   -- переодеться без хуйни
+        [581] = 1,    -- переодеться без хуйни
         [15330] = 0, -- скип акции х4
         [25191] = 1, -- ещё один диалог
-        [15531] = 1  -- оплата налогов с Metall Bank Card
+        [15531] = 1,  -- оплата налогов с Metall Bank Card
+		[15254] = 1, -- разругз
+		[26014] = 1, -- vc fam avto
+		[25824] = 1 -- переодеться вс
     }
 
     -- проверка по id
@@ -312,7 +315,7 @@ function se.onShowDialog(id, style, title, button1, button2, text)
         ["Отправляйся в Железный порт, его ты сможешь найти с помощью GPS."] = "{73B461}[Информация] {ffffff}Вы приняли семейный квест {ff7e14}'Тонна рыбы!'.",
         ["Нам срочно нужны люди которые будут заниматься охотой!."] = "{73B461}[Информация] {ffffff}Вы приняли семейный квест {ff7e14}'Охотимся!'.",
         ["Йоу братишка, вижу ты часто гуляешь по нашим опасным улицам."] = false,
-        ["Мы рады видеть вас на сервере Vice City. Сейчас на сервере проходит акция [FA5858]X2 PayDay"] = false
+        ["Мы рады видеть вас на сервере"] = false
     }
 
     -- проверка по тексту
@@ -361,11 +364,12 @@ function se.onServerMessage(color, text)
             {pattern = "Объявление: (.+)%. (.+_.+)%[.+] Тел%. (.+)", prefix = "{87b650}AD: {ffeadb}", suffix = "{ff9a76} T: "},
             {pattern = "Объявление: (.+)%. (.+_.+)%[.+] Тел%. (.+)", prefix = "{87b650}AD: {ffeadb}", suffix = "{ff9a76} T: "},
             {pattern = "Объявление: (.+)%. (.+_.+) %[.+]%. Тел: (.+)", prefix = "{87b650}AD: {ffeadb}", suffix = "{ff9a76} T: "},
-            {pattern = "%[VIP]Объявление: (.+)%. (.+_.+)%[.+] Тел%. (.+)", prefix = "{FCAA4D}VIP AD: {ffeadb}", suffix = "{ff9a76} T: "}
+            {pattern = "%[VIP]Объявление: (.+)%. (.+_.+)%[.+] Тел%. (.+)", prefix = "{FCAA4D}VIP AD: {ffeadb}", suffix = "{ff9a76} T: "},
+			{pattern = "%[Реклама Бизнеса%] (.+)%.", prefix = "{FCAA4D}AD BIZ: {ffeadb}", suffix = "{ff9a76} "}
         }
 
-		-- скип объявлений ломбарда
-		if string.find(text, "Ломбард") or string.find(text, "ломбард") then
+		-- скип объяввлений ломбарда
+		if string.find(text, "Ломбард") or string.find(text, "ломбард" or string.find(text, "Ломбрад") or string.find(text, "ломбрад")) then
     		return false
 		end
 
@@ -378,20 +382,15 @@ function se.onServerMessage(color, text)
             end
         end
     end
-
 	-- скип рекламы ломбарда в VIP-чате
-	if string.find(text, "%[VIP ADV%]") and (string.find(text, "Ломбард") or string.find(text, "ломбард")) then
-		return false
+	if string.find(text, "%[VIP ADV%]") and (string.find(text, "Ломбард") or string.find(text, "ломбард") or string.find(text, "Ломбрад") or string.find(text, "ломбрад")) then
+    	return false
 	end
 
-	-- поздравление с апом уровня в фаме
-	if text:find("{FF8400}%[Новости Семьи]{FFFFFF} Член семьи: .+_.+%[.+] достиг .+ уровня%. В семью начислен опыт%.") then
-		lua_thread.create(function()
-		  wait(1000)
-		  sampSendChat("/fam С днём рождения!")
-		  end)
-		return text
-   end
+	-- ломбард ютубера
+	if string.find(text, "%[ADMIN%]") and (string.find(text, "Ломбард") or string.find(text, "ломбард") or string.find(text, "Ломбрад") or string.find(text, "ломбрад")) then
+    	return false
+	end
 
    -- приветствие в семье
 	if text:find("%[Семья %(Новости%)] .+_.+%[.+]:{B9C1B8} пригласил в семью нового члена: .+_.+%[.+]!") then
